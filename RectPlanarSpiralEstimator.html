@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="application-name" content="Rectangular Planar Spiral Coil Inductance Estimator" />
+  <meta name="description" content="Inductance estimator for rectangular planar spiral coils with rectangular conductor cross section. For RFIC, RFID, NFC and WPT researchers." />
+  <title>Rectangular Planar Spiral Coil Inductance Estimator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent: #ffb347;
+      --accent-soft: rgba(255, 179, 71, 0.10);
+      --accent-border: #7a5525;
+      --bg: #050505;
+      --panel: #0d0d0d;
+      --panel-head: #101010;
+      --inset: #000000;
+      --line: #242424;
+      --line-soft: #1d1d1d;
+      --text: #e8e8e8;
+      --muted: #9a9a9a;
+      --dim: #6a6a6a;
+      --orange: #ffb347;
+      --orange-soft: #c9853a;
+      --orange-deep: #7a5525;
+      --fail: #ff7043;
+      --warn: #ffd54f;
+      --ok: #9ccc65;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { color-scheme: dark; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, sans-serif;
+    }
+
+    body {
+      padding: 18px;
+      line-height: 1.45;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--line);
+      border-radius: 12px 12px 0 0;
+      padding: 16px 20px;
+    }
+
+    header .title {
+      color: var(--orange);
+      font-size: 1.12rem;
+      font-weight: 700;
+      letter-spacing: 0.055em;
+      text-transform: uppercase;
+    }
+
+    header .ver {
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-left: 10px;
+      letter-spacing: 0.04em;
+    }
+
+    header .credit {
+      color: var(--orange-soft);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      margin-top: 4px;
+    }
+
+    header .sub {
+      color: var(--muted);
+      font-size: 0.82rem;
+      margin-top: 6px;
+      max-width: 72rem;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px 12px;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    button {
+      appearance: none;
+      cursor: pointer;
+      min-width: 170px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--orange-deep);
+      background: linear-gradient(180deg, #2a1c0c, #1a1208);
+      color: #ffd089;
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+    }
+
+    button:hover {
+      border-color: var(--orange);
+      background: linear-gradient(180deg, #3a2912, #24180c);
+      color: #ffd089;
+    }
+
+    button:active { transform: translateY(1px); }
+
+    button.secondary {
+      min-width: 120px;
+      background: #121212;
+      color: var(--muted);
+      border-color: var(--line);
+      text-transform: none;
+      letter-spacing: 0.02em;
+      font-weight: 600;
+    }
+
+    button.secondary:hover {
+      color: var(--orange);
+      border-color: var(--orange-deep);
+      background: #1a1208;
+    }
+
+    .hint {
+      color: var(--dim);
+      font-size: 0.72rem;
+    }
+
+    .alert {
+      margin: 14px 20px 0;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      font-size: 0.82rem;
+      display: none;
+    }
+
+    .alert.show { display: block; }
+
+    .alert-warning {
+      background: rgba(255, 213, 79, 0.08);
+      border-color: rgba(255, 213, 79, 0.28);
+      color: var(--warn);
+    }
+
+    .alert-fail {
+      background: rgba(255, 112, 67, 0.08);
+      border-color: rgba(255, 112, 67, 0.3);
+      color: var(--fail);
+    }
+
+    .alert-ok {
+      background: rgba(156, 204, 101, 0.08);
+      border-color: rgba(156, 204, 101, 0.28);
+      color: var(--ok);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 380px) 1fr;
+      gap: 16px;
+      padding: 16px 20px 20px;
+    }
+
+    @media (max-width: 920px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--panel-head);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .card:last-child { margin-bottom: 0; }
+
+    .card-head {
+      border-bottom: 1px solid var(--line);
+      color: var(--orange);
+      font-weight: 700;
+      font-size: 0.74rem;
+      letter-spacing: 0.075em;
+      text-transform: uppercase;
+      padding: 10px 14px;
+    }
+
+    .card-body { padding: 14px; }
+
+    .form-group { margin-bottom: 12px; min-width: 0; }
+    .form-group:last-child { margin-bottom: 0; }
+
+    label {
+      display: block;
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    label .sym {
+      color: var(--orange);
+      font-family: "Times New Roman", Times, serif;
+      font-style: italic;
+      font-size: 0.95rem;
+      margin-right: 4px;
+    }
+
+    .unit {
+      color: var(--dim);
+      font-size: 0.7rem;
+      font-weight: 400;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      background: var(--inset);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font: inherit;
+      font-size: 0.9rem;
+    }
+
+    input[type="number"]:focus {
+      outline: none;
+      border-color: var(--orange-deep);
+      box-shadow: 0 0 0 2px rgba(255, 179, 71, 0.12);
+    }
+
+    .param-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 8px;
+    }
+
+    .param-list li {
+      display: grid;
+      grid-template-columns: 2.4rem 1fr;
+      gap: 8px;
+      align-items: baseline;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .param-list .sym {
+      color: var(--orange);
+      font-family: "Times New Roman", Times, serif;
+      font-style: italic;
+      font-size: 1.05rem;
+      text-align: center;
+    }
+
+    .param-list strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .diagram-wrap {
+      background: var(--inset);
+      border: 1px solid var(--line-soft);
+      border-radius: 10px;
+      padding: 12px;
+      min-height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .diagram-wrap svg {
+      width: 100%;
+      max-width: 560px;
+      height: auto;
+      display: block;
+    }
+
+    .diagram-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      margin-top: 10px;
+      color: var(--dim);
+      font-size: 0.72rem;
+    }
+
+    .diagram-legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .swatch {
+      width: 14px;
+      height: 3px;
+      border-radius: 2px;
+      background: var(--orange);
+    }
+
+    .swatch.thin { background: var(--muted); }
+    .swatch.dash {
+      background: repeating-linear-gradient(90deg, var(--orange-soft) 0 4px, transparent 4px 8px);
+    }
+
+    .result-hero {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 720px) {
+      .result-hero { grid-template-columns: 1fr; }
+    }
+
+    .result-main {
+      background: linear-gradient(160deg, rgba(255, 179, 71, 0.12), rgba(255, 179, 71, 0.03) 48%, transparent),
+                  #080808;
+      border: 1px solid var(--orange-deep);
+      border-radius: 10px;
+      padding: 18px 16px;
+      min-height: 140px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .result-main .label {
+      color: var(--orange-soft);
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .result-main .value {
+      margin-top: 8px;
+      color: var(--orange);
+      font-size: clamp(1.8rem, 4vw, 2.55rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    .result-main .value.idle {
+      color: var(--dim);
+      font-size: 1.15rem;
+      font-weight: 500;
+      letter-spacing: 0;
+    }
+
+    .result-main .unit-line {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .result-item {
+      background: #080808;
+      border: 1px solid var(--line-soft);
+      border-left: 3px solid var(--orange-deep);
+      border-radius: 8px;
+      padding: 10px 11px;
+    }
+
+    .result-label {
+      color: var(--dim);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .result-value {
+      margin-top: 4px;
+      color: var(--text);
+      font-size: 0.95rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .notes {
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.55;
+    }
+
+    .notes a { color: var(--orange); }
+    .notes p { margin: 0 0 10px; }
+    .notes p:last-child { margin-bottom: 0; }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--accent-soft);
+      color: var(--orange-soft);
+      font-size: 0.7rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .badge .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--orange);
+      box-shadow: 0 0 10px rgba(255, 179, 71, 0.55);
+    }
+
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 12px 20px 16px;
+      color: var(--dim);
+      font-size: 0.75rem;
+    }
+
+    footer a { color: var(--muted); }
+
+    @media (prefers-reduced-motion: reduce) {
+      button { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="title">Rectangular Planar Spiral Coil Inductance Estimator<span class="ver">V1.0</span></div>
+      <div class="credit">developed by S. Chatterjee</div>
+      <div class="sub">
+        A convenient tool for RFIC, RFID, NFC and WPT researchers. This estimator considers rectangular planar spiral coils
+        with an aspect ratio of up to 4.0 and a cross-sectional aspect ratio of height to width not exceeding unity.
+        It is based on physical principles, hence scalable and valid for any dimension and inductance range.
+      </div>
+      <div class="badge-row">
+        <span class="badge"><span class="dot"></span>Max error 5.6%</span>
+        <span class="badge">vs FastHenry2 baseline</span>
+        <span class="badge">Aebischer geometry</span>
+      </div>
+    </header>
+
+    <div class="toolbar">
+      <button id="calcBtn" type="button">Estimate Inductance</button>
+      <button id="resetBtn" class="secondary" type="button">Reset defaults</button>
+      <span class="hint">Inputs recalculate live · Enter also recalculates</span>
+    </div>
+
+    <div id="alertBox" class="alert" role="status" aria-live="polite"></div>
+
+    <div class="layout">
+      <div>
+        <section class="card">
+          <div class="card-head">Coil parameters</div>
+          <div class="card-body">
+            <div class="form-group">
+              <label for="N"><span class="sym">N</span> Number of turns <span class="unit">(dimensionless, N ≥ 2)</span></label>
+              <input id="N" type="number" min="2" step="1" value="5" />
+            </div>
+            <div class="form-group">
+              <label for="A"><span class="sym">A</span> Longer outer mid-conductor side <span class="unit">(mm)</span></label>
+              <input id="A" type="number" min="0.01" step="any" value="200" />
+            </div>
+            <div class="form-group">
+              <label for="B"><span class="sym">B</span> Shorter outer mid-conductor side <span class="unit">(mm)</span></label>
+              <input id="B" type="number" min="0.01" step="any" value="200" />
+            </div>
+            <div class="form-group">
+              <label for="w"><span class="sym">w</span> Winding pitch <span class="unit">(mm, w = s + g)</span></label>
+              <input id="w" type="number" min="0.01" step="any" value="1" />
+            </div>
+            <div class="form-group">
+              <label for="s"><span class="sym">s</span> Conductor width <span class="unit">(mm)</span></label>
+              <input id="s" type="number" min="0.01" step="any" value="0.5" />
+            </div>
+            <div class="form-group">
+              <label for="h"><span class="sym">h</span> Conductor height / thickness <span class="unit">(mm)</span></label>
+              <input id="h" type="number" min="0.01" step="any" value="0.7" />
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">Parameter definitions</div>
+          <div class="card-body">
+            <ul class="param-list">
+              <li><span class="sym">N</span><span><strong>Number of turns</strong> or windings (N ≥ 2)</span></li>
+              <li><span class="sym">A</span><span><strong>Longer</strong> outermost mid-conductor side length</span></li>
+              <li><span class="sym">B</span><span><strong>Shorter</strong> outermost mid-conductor side length</span></li>
+              <li><span class="sym">w</span><span><strong>Winding distance</strong> or pitch (w = s + g)</span></li>
+              <li><span class="sym">g</span><span><strong>Gap</strong> or spacing between windings</span></li>
+              <li><span class="sym">s</span><span><strong>Conductor width</strong></span></li>
+              <li><span class="sym">h</span><span><strong>Conductor height</strong> or thickness</span></li>
+            </ul>
+          </div>
+        </section>
+      </div>
+
+      <div>
+        <section class="card">
+          <div class="card-head">Result</div>
+          <div class="card-body">
+            <div class="result-hero">
+              <div class="result-main">
+                <div class="label">Inductance L</div>
+                <div id="Lvalue" class="value idle">Press “Estimate Inductance”</div>
+                <div id="Lunit" class="unit-line">microhenry (µH)</div>
+              </div>
+              <div class="result-grid">
+                <div class="result-item">
+                  <div class="result-label">Outer sides A × B</div>
+                  <div id="geoAB" class="result-value">—</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Inner mid sides a × b</div>
+                  <div id="geoab" class="result-value">—</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Aspect A / B</div>
+                  <div id="geoAR" class="result-value">—</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Gap g = w − s</div>
+                  <div id="geoG" class="result-value">—</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Fill ratio ρ</div>
+                  <div id="geoRho" class="result-value">—</div>
+                </div>
+                <div class="result-item">
+                  <div class="result-label">Cross-section h / s</div>
+                  <div id="geoHS" class="result-value">—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">Geometry preview</div>
+          <div class="card-body">
+            <div class="diagram-wrap" aria-hidden="true">
+              <svg id="coilSvg" viewBox="0 0 580 420" xmlns="http://www.w3.org/2000/svg"></svg>
+            </div>
+            <div class="diagram-legend">
+              <span><i class="swatch"></i> conductor track</span>
+              <span><i class="swatch thin"></i> dimensions A, A_in, B, B_in</span>
+              <span><i class="swatch dash"></i> s = width · g = gap · w = s + g · turns drawn for clarity</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">Notes</div>
+          <div class="card-body notes">
+            <p>
+              The formula lowers the overall maximum error from 28% down to 5.6% compared to the FastHenry2 estimator.
+            </p>
+            <p>
+              This estimation is primarily based on the formulae devised by H. A. Aebischer in
+              <a href="https://doi.org/10.7716/aem.v9i1.1346" target="_blank" rel="noopener noreferrer">Inductance Formula for Rectangular Planar Spiral Inductors with Rectangular Conductor Cross Section</a>,
+              with required alterations regarding the geometry of rectangular planar coils and their physical structure in PCB implementation
+              made by S. Chatterjee, School of Physics, ITMO University, Saint Petersburg, Russian Federation.
+            </p>
+            <p>
+              Valid designs: aspect ratio A/B up to 4.0, cross-section h/s ≤ 1, and geometric fill ratio within the published limits.
+              Invalid combinations that would cause overlapping turns are rejected.
+            </p>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <footer>
+      Rectangular Planar Spiral Coil Inductance Estimator · values in millimeters unless noted ·
+      inductance reported in microhenry
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var inputs = {
+        N: document.getElementById("N"),
+        A: document.getElementById("A"),
+        B: document.getElementById("B"),
+        w: document.getElementById("w"),
+        s: document.getElementById("s"),
+        h: document.getElementById("h")
+      };
+
+      var alertBox = document.getElementById("alertBox");
+      var Lvalue = document.getElementById("Lvalue");
+      var Lunit = document.getElementById("Lunit");
+
+      var defaults = { N: 5, A: 200, B: 200, w: 1, s: 0.5, h: 0.7 };
+
+      function num(el) {
+        var v = parseFloat(el.value);
+        return Number.isFinite(v) ? v : NaN;
+      }
+
+      function showAlert(kind, msg) {
+        alertBox.className = "alert show alert-" + kind;
+        alertBox.textContent = msg;
+      }
+
+      function hideAlert() {
+        alertBox.className = "alert";
+        alertBox.textContent = "";
+      }
+
+      function fmt(x, digits) {
+        if (!Number.isFinite(x)) return "—";
+        if (Math.abs(x) >= 1000) return x.toFixed(Math.max(0, digits - 1));
+        if (Math.abs(x) >= 10) return x.toFixed(digits - 1);
+        return x.toFixed(digits);
+      }
+
+      /**
+       * Port of calculate_L_RectPlanarSpiral(N, A, B, w, s, h)
+       * Units: N dimensionless; A,B,w,s,h in mm. Returns L in microhenry.
+       */
+      function calculateL(N, A, B, w, s, h) {
+        if (B > A) {
+          var Asave = A;
+          A = B;
+          B = Asave;
+        }
+
+        var mu4pi = 1e-7; // mu0 / (4*pi)
+
+        var a = A - (N - 1) * w;
+        var b = B - (N - 1) * w;
+        var rho = ((N - 1) * w + s) / (B - (N - 1) * w);
+
+        var ok = true;
+        var message = "";
+
+        if (N === 2) {
+          if (rho > 0.36001) {
+            ok = false;
+          }
+        } else if (N >= 3 && N <= 20) {
+          if (rho > 0.52001) {
+            ok = false;
+          }
+        } else if (N >= 21) {
+          if (rho > (N - 1) / (N + 1)) {
+            ok = false;
+          }
+        }
+
+        if (!(a > 0) || !(b > 0) || !(w > 0) || !(s > 0) || !(h > 0)) {
+          ok = false;
+        }
+
+        if (ok) {
+          for (var ks = -(N - 1); ks <= N - 1; ks++) {
+            if (a + ks * w <= 0 || b + ks * w <= 0) {
+              ok = false;
+              break;
+            }
+          }
+        }
+
+        if (!ok) {
+          message = "Invalid parameter combination. Please revise your design since one or more than one of the parameters will cause geometrical errors such as overlapping and other possible errors.";
+          return { L: NaN, message: message, a: a, b: b, rho: rho, A: A, B: B };
+        }
+
+        var log_GMD1 = Math.log(s + h) - 1.5;
+        function log_GMD2(x) {
+          return Math.log(s + h) + Math.log(x / (2 * s)) - ((-1.46 * s / h + 1.45) / (2.14 * s / h + 1));
+        }
+        var GMD1 = 0.2235 * (s + h);
+        function GMD2(x) { return Math.exp(log_GMD2(x)); }
+        var AMD1 = GMD1;
+        function AMD2(x) { return GMD2(x); }
+        var AMSD1sq = (1 / 6) * (s * s + h * h);
+        function AMSD2sq(x) { return x * x; }
+
+        var sum1 = 0, sum2 = 0, sum3 = 0;
+        for (var k = 1; k < N; k++) {
+          sum1 += (N - k) * log_GMD2(k * w);
+          sum2 += (N - k) * AMSD2sq(k * w);
+          sum3 += (N - k) * AMD2(k * w);
+        }
+
+        var log_GMD_L = (N * log_GMD1 + 2 * sum1) / (N * N);
+        var AMSD_L = (N * AMSD1sq + 2 * sum2) / (N * N);
+        var AMD_L = (N * AMD1 + 2 * sum3) / (N * N);
+
+        var sa = 0, sb = 0, da = 0, db = 0, aa = 0, ab = 0;
+        for (var t = -(N - 1); t <= N - 1; t++) {
+          var wgt = N - Math.abs(t);
+          var ax = a + t * w;
+          var bx = b + t * w;
+          sa += wgt * Math.log(ax);
+          sb += wgt * Math.log(bx);
+          da += wgt * AMSD2sq(ax);
+          db += wgt * AMSD2sq(bx);
+          aa += wgt * ax;
+          ab += wgt * bx;
+        }
+
+        var log_GMD_a = sa / (N * N);
+        var log_GMD_b = sb / (N * N);
+        var AMSD_a = da / (N * N);
+        var AMSD_b = db / (N * N);
+        var AMD_a = aa / (N * N);
+        var AMD_b = ab / (N * N);
+
+        var La = mu4pi * 2 * (a * Math.log(a + Math.sqrt(a * a + AMSD_L)) - a * log_GMD_L - Math.sqrt(a * a + AMSD_L) + AMD_L);
+        var Lb = mu4pi * 2 * (b * Math.log(b + Math.sqrt(b * b + AMSD_L)) - b * log_GMD_L - Math.sqrt(b * b + AMSD_L) + AMD_L);
+        var Ma = mu4pi * 2 * (a * Math.log(a + Math.sqrt(a * a + AMSD_b)) - a * log_GMD_b - Math.sqrt(a * a + AMSD_b) + AMD_b);
+        var Mb = mu4pi * 2 * (b * Math.log(b + Math.sqrt(b * b + AMSD_a)) - b * log_GMD_a - Math.sqrt(b * b + AMSD_a) + AMD_a);
+
+        var L = 2 * N * N * (La + Lb - (Ma + Mb)) * 1000;
+        return { L: L, message: "", a: a, b: b, rho: rho, A: A, B: B };
+      }
+
+      function fmtNum(v) {
+        if (!Number.isFinite(v)) return "—";
+        var r = Math.round(v * 1000) / 1000;
+        return String(r);
+      }
+
+      function drawCoil(N, A, B, w, s) {
+        var svg = document.getElementById("coilSvg");
+        if (!svg) return;
+
+        if (!(N >= 2) || !(A > 0) || !(B > 0) || !(w > 0) || !(s > 0)) {
+          svg.innerHTML = "";
+          return;
+        }
+
+        N = Math.round(N);
+        if (s >= w) s = w * 0.85;
+
+        var vbW = 580;
+        var vbH = 420;
+        var padL = 108;
+        var padR = 96;
+        var padT = 72;
+        var padB = 58;
+        var drawW = vbW - padL - padR;
+        var drawH = vbH - padT - padB;
+        var scale = Math.min(drawW / A, drawH / B);
+        var ox = padL + (drawW - A * scale) / 2;
+        var oy = padT + (drawH - B * scale) / 2;
+
+        function X(x) { return ox + x * scale; }
+        function Y(y) { return oy + y * scale; }
+
+        var gold = "#e6c84a";
+        var goldDim = "#c9a84a";
+        var goldSoft = "#8a742e";
+        var ink = "#f0e08a";
+
+        // True labels (formula / input convention)
+        var Ain = Math.max(A - 2 * s - 2 * (N - 1) * w, 0);
+        var Bin = Math.max(B - 2 * s - 2 * (N - 1) * w, 0);
+
+        // Schematic turn layout: keep A:B envelope, exaggerate s/g so all N turns read clearly
+        var bandFrac = Math.min(0.20 + 0.022 * N, 0.40);
+        var band = Math.min(A, B) * bandFrac;
+        var visW = band / N;
+        var visS = visW * 0.55;
+        var visG = visW - visS;
+
+        // Drawn envelope is still outer-to-outer A × B
+        var mL = visS / 2;
+        var mR = A - visS / 2;
+        var mT = visS / 2;
+        var mB = B - visS / 2;
+        var pts = [];
+        var gapTerm = visW * 0.55;
+
+        for (var i = 0; i < N; i++) {
+          var L = mL + i * visW;
+          var R = mR - i * visW;
+          var T = mT + i * visW;
+          var Bm = mB - i * visW;
+
+          if (i === 0) {
+            pts.push({ x: L, y: Bm, m: true });
+          }
+
+          if (i === N - 1) {
+            pts.push({ x: L + gapTerm, y: Bm, m: true });
+            pts.push({ x: R, y: Bm });
+            pts.push({ x: R, y: T });
+            pts.push({ x: L, y: T });
+            pts.push({ x: L, y: Bm - gapTerm });
+          } else {
+            pts.push({ x: R, y: Bm });
+            pts.push({ x: R, y: T });
+            pts.push({ x: L, y: T });
+            pts.push({ x: L, y: Bm - visW });
+          }
+        }
+
+        var d = "";
+        for (var p = 0; p < pts.length; p++) {
+          var pt = pts[p];
+          d += (pt.m ? "M" : "L") + X(pt.x).toFixed(2) + " " + Y(pt.y).toFixed(2) + " ";
+        }
+
+        var strokeW = Math.max(visS * scale, 3.2);
+
+        function arrow(x, y, dx, dy) {
+          var len = 8;
+          var wing = 3.1;
+          var bx = x - dx * len;
+          var by = y - dy * len;
+          var x1 = bx + dy * wing;
+          var y1 = by - dx * wing;
+          var x2 = bx - dy * wing;
+          var y2 = by + dx * wing;
+          return '<polygon points="' + x.toFixed(1) + ',' + y.toFixed(1) + ' ' +
+            x1.toFixed(1) + ',' + y1.toFixed(1) + ' ' +
+            x2.toFixed(1) + ',' + y2.toFixed(1) + '" fill="' + goldDim + '"/>';
+        }
+
+        function dimH(x1, x2, y, label, labelDy) {
+          var mid = (x1 + x2) / 2;
+          var s2 = "";
+          s2 += '<line x1="' + x1.toFixed(1) + '" y1="' + y.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y.toFixed(1) + '" stroke="' + goldDim + '" stroke-width="1"/>';
+          s2 += arrow(x1, y, 1, 0);
+          s2 += arrow(x2, y, -1, 0);
+          s2 += '<text x="' + mid.toFixed(1) + '" y="' + (y + (labelDy || -8)).toFixed(1) + '" fill="' + ink + '" font-size="12" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600">' + label + '</text>';
+          return s2;
+        }
+
+        function dimV(y1, y2, x, label, labelDx) {
+          var mid = (y1 + y2) / 2;
+          var s2 = "";
+          s2 += '<line x1="' + x.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x.toFixed(1) + '" y2="' + y2.toFixed(1) + '" stroke="' + goldDim + '" stroke-width="1"/>';
+          s2 += arrow(x, y1, 0, 1);
+          s2 += arrow(x, y2, 0, -1);
+          s2 += '<text x="' + (x + (labelDx || -8)).toFixed(1) + '" y="' + mid.toFixed(1) + '" fill="' + ink + '" font-size="12" text-anchor="end" dominant-baseline="middle" font-family="Inter,sans-serif" font-weight="600">' + label + '</text>';
+          return s2;
+        }
+
+        function ext(x1, y1, x2, y2) {
+          return '<line x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '" stroke="' + goldSoft + '" stroke-width="1"/>';
+        }
+
+        var x0 = X(0), x1 = X(A);
+        var y0 = Y(0), y1 = Y(B);
+        // drawn inner opening (schematic turns)
+        var xAin0 = X(visS + (N - 1) * visW);
+        var xAin1 = X(A - visS - (N - 1) * visW);
+        var yAin0 = Y(visS + (N - 1) * visW);
+        var yAin1 = Y(B - visS - (N - 1) * visW);
+
+        var parts = [];
+        parts.push('<rect x="12" y="12" width="' + (vbW - 24) + '" height="' + (vbH - 24) + '" rx="10" fill="#000" stroke="#1d1d1d"/>');
+
+        // faint outer envelope guide
+        parts.push('<rect x="' + x0.toFixed(1) + '" y="' + y0.toFixed(1) + '" width="' + (x1 - x0).toFixed(1) + '" height="' + (y1 - y0).toFixed(1) + '" fill="none" stroke="#2a2414" stroke-width="1"/>');
+
+        // coil track
+        parts.push('<path d="' + d.trim() + '" fill="none" stroke="' + gold + '" stroke-width="' + strokeW.toFixed(2) + '" stroke-linejoin="miter" stroke-linecap="square"/>');
+
+        // --- A (top, outer) ---
+        var dimYA = 22;
+        parts.push(ext(x0, y0 - 6, x0, dimYA + 6));
+        parts.push(ext(x1, y0 - 6, x1, dimYA + 6));
+        parts.push(dimH(x0, x1, dimYA, "A = " + fmtNum(A), -7));
+
+        // --- A_in (top, inner opening) ---
+        var dimYAi = 40;
+        parts.push(ext(xAin0, yAin0 - 4, xAin0, dimYAi + 6));
+        parts.push(ext(xAin1, yAin0 - 4, xAin1, dimYAi + 6));
+        parts.push(dimH(xAin0, xAin1, dimYAi, "A_in = " + fmtNum(Ain), -6));
+
+        // --- B (right, outer) ---
+        var dimXB = vbW - 18;
+        parts.push(ext(x1 + 6, y0, dimXB - 8, y0));
+        parts.push(ext(x1 + 6, y1, dimXB - 8, y1));
+        parts.push(dimV(y0, y1, dimXB, "B = " + fmtNum(B), -10));
+
+        // --- B_in (right, inner opening) ---
+        var dimXBi = vbW - 86;
+        parts.push(ext(xAin1 + 4, yAin0, dimXBi - 8, yAin0));
+        parts.push(ext(xAin1 + 4, yAin1, dimXBi - 8, yAin1));
+        parts.push(dimV(yAin0, yAin1, dimXBi, "B_in = " + fmtNum(Bin), -10));
+
+        // --- s / g / w cross-section callout (left) ---
+        var cx = 36;
+        var cyTop = 250;
+        var barW = 10;
+        var barH = 72;
+        var gapW = 7;
+        // three bars
+        for (var b = 0; b < 3; b++) {
+          var bx = cx + b * (barW + gapW);
+          parts.push('<rect x="' + bx + '" y="' + cyTop + '" width="' + barW + '" height="' + barH + '" fill="' + gold + '" rx="1"/>');
+        }
+        // s dimension on first bar
+        parts.push('<line x1="' + cx + '" y1="' + (cyTop - 12) + '" x2="' + (cx + barW) + '" y2="' + (cyTop - 12) + '" stroke="' + goldDim + '" stroke-width="1"/>');
+        parts.push(arrow(cx, cyTop - 12, 1, 0));
+        parts.push(arrow(cx + barW, cyTop - 12, -1, 0));
+        parts.push('<text x="' + (cx + barW / 2) + '" y="' + (cyTop - 18) + '" fill="' + ink + '" font-size="11" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600">s</text>');
+
+        // g dimension on gap
+        var gx0 = cx + barW;
+        var gx1 = cx + barW + gapW;
+        parts.push('<line x1="' + gx0 + '" y1="' + (cyTop + barH + 12) + '" x2="' + gx1 + '" y2="' + (cyTop + barH + 12) + '" stroke="' + goldDim + '" stroke-width="1"/>');
+        parts.push(arrow(gx0, cyTop + barH + 12, 1, 0));
+        parts.push(arrow(gx1, cyTop + barH + 12, -1, 0));
+        parts.push('<text x="' + ((gx0 + gx1) / 2) + '" y="' + (cyTop + barH + 26) + '" fill="' + ink + '" font-size="11" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600">g</text>');
+
+        // w dimension spanning bar+gap
+        var wx0 = cx;
+        var wx1 = cx + barW + gapW;
+        parts.push('<line x1="' + wx0 + '" y1="' + (cyTop + barH + 40) + '" x2="' + wx1 + '" y2="' + (cyTop + barH + 40) + '" stroke="' + goldDim + '" stroke-width="1"/>');
+        parts.push(arrow(wx0, cyTop + barH + 40, 1, 0));
+        parts.push(arrow(wx1, cyTop + barH + 40, -1, 0));
+        parts.push('<text x="' + ((wx0 + wx1) / 2) + '" y="' + (cyTop + barH + 54) + '" fill="' + ink + '" font-size="11" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600">w</text>');
+
+        // w = s + g note under callout
+        parts.push('<text x="' + (cx + 4) + '" y="' + (cyTop + barH + 72) + '" fill="' + goldSoft + '" font-size="10" text-anchor="start" font-family="Inter,sans-serif">w = s + g</text>');
+
+        // --- w pitch on the coil (top-left, like the reference figure) ---
+        if (N >= 2) {
+          var xTurn0 = X(mL);
+          var xTurn1 = X(mL + visW);
+          var wY = y0 - 10;
+          parts.push(ext(xTurn0, y0 - 2, xTurn0, wY + 5));
+          parts.push(ext(xTurn1, y0 - 2, xTurn1, wY + 5));
+          parts.push(dimH(xTurn0, xTurn1, wY, "w", -5));
+        }
+        parts.push('<text x="' + ((x0 + x1) / 2).toFixed(1) + '" y="' + (vbH - 18) + '" fill="' + ink + '" font-size="13" text-anchor="middle" font-family="Inter,sans-serif" font-weight="700">N = ' + N + '</text>');
+
+        // terminal markers
+        var start = pts[0];
+        var end = pts[pts.length - 1];
+        if (start) {
+          parts.push('<circle cx="' + X(start.x).toFixed(1) + '" cy="' + Y(start.y).toFixed(1) + '" r="3.5" fill="none" stroke="' + ink + '" stroke-width="1.5"/>');
+        }
+        if (end) {
+          parts.push('<circle cx="' + X(end.x).toFixed(1) + '" cy="' + Y(end.y).toFixed(1) + '" r="3.5" fill="none" stroke="' + ink + '" stroke-width="1.5"/>');
+        }
+
+        svg.setAttribute("viewBox", "0 0 " + vbW + " " + vbH);
+        svg.innerHTML = parts.join("");
+      }
+
+      function updateDerived() {
+        var N = num(inputs.N);
+        var A = num(inputs.A);
+        var B = num(inputs.B);
+        var w = num(inputs.w);
+        var s = num(inputs.s);
+        var h = num(inputs.h);
+
+        if (B > A) {
+          var tmp = A; A = B; B = tmp;
+        }
+
+        var a = A - (N - 1) * w;
+        var b = B - (N - 1) * w;
+        var rho = ((N - 1) * w + s) / (B - (N - 1) * w);
+        var g = w - s;
+
+        document.getElementById("geoAB").textContent = (Number.isFinite(A) && Number.isFinite(B)) ? (fmt(A, 3) + " × " + fmt(B, 3) + " mm") : "—";
+        document.getElementById("geoab").textContent = (Number.isFinite(a) && Number.isFinite(b)) ? (fmt(a, 3) + " × " + fmt(b, 3) + " mm") : "—";
+        document.getElementById("geoAR").textContent = (Number.isFinite(A) && Number.isFinite(B) && B > 0) ? fmt(A / B, 3) : "—";
+        document.getElementById("geoG").textContent = Number.isFinite(g) ? (fmt(g, 3) + " mm") : "—";
+        document.getElementById("geoRho").textContent = Number.isFinite(rho) ? fmt(rho, 4) : "—";
+        document.getElementById("geoHS").textContent = (Number.isFinite(h) && Number.isFinite(s) && s > 0) ? fmt(h / s, 3) : "—";
+
+        drawCoil(N, A, B, w, s);
+      }
+
+      function runCalc() {
+        updateDerived();
+
+        var N = num(inputs.N);
+        var A = num(inputs.A);
+        var B = num(inputs.B);
+        var w = num(inputs.w);
+        var s = num(inputs.s);
+        var h = num(inputs.h);
+
+        if (!Number.isFinite(N) || !Number.isFinite(A) || !Number.isFinite(B) || !Number.isFinite(w) || !Number.isFinite(s) || !Number.isFinite(h)) {
+          showAlert("fail", "Please provide numeric values for all parameters.");
+          Lvalue.textContent = "—";
+          Lvalue.className = "value idle";
+          return;
+        }
+
+        if (N < 2 || Math.abs(N - Math.round(N)) > 1e-9) {
+          showAlert("fail", "Number of turns N must be an integer of at least 2.");
+          Lvalue.textContent = "—";
+          Lvalue.className = "value idle";
+          return;
+        }
+
+        N = Math.round(N);
+
+        if (A <= 0 || B <= 0 || w <= 0 || s <= 0 || h <= 0) {
+          showAlert("fail", "All lengths must be positive.");
+          Lvalue.textContent = "—";
+          Lvalue.className = "value idle";
+          return;
+        }
+
+        var warnings = [];
+        if (h / s > 1.0001) {
+          warnings.push("Cross-section ratio h/s exceeds unity. The model is intended for h/s ≤ 1.");
+        }
+        if (Math.max(A, B) / Math.min(A, B) > 4.0001) {
+          warnings.push("Aspect ratio A/B exceeds 4.0. Published validation is up to 4.0.");
+        }
+
+        var out = calculateL(N, A, B, w, s, h);
+
+        if (!Number.isFinite(out.L)) {
+          showAlert("fail", out.message || "Invalid parameter combination.");
+          Lvalue.textContent = "—";
+          Lvalue.className = "value idle";
+          return;
+        }
+
+        Lvalue.textContent = out.L.toFixed(3);
+        Lvalue.className = "value";
+        Lunit.textContent = "microhenry (µH) · Aebischer-based estimate";
+
+        if (warnings.length) {
+          showAlert("warning", warnings.join(" "));
+        } else {
+          showAlert("ok", "Estimate complete. Geometry is within the validated model limits.");
+        }
+      }
+
+      function onInput() {
+        updateDerived();
+        // live estimate
+        runCalc();
+      }
+
+      document.getElementById("calcBtn").addEventListener("click", runCalc);
+      document.getElementById("resetBtn").addEventListener("click", function () {
+        inputs.N.value = defaults.N;
+        inputs.A.value = defaults.A;
+        inputs.B.value = defaults.B;
+        inputs.w.value = defaults.w;
+        inputs.s.value = defaults.s;
+        inputs.h.value = defaults.h;
+        runCalc();
+      });
+
+      Object.keys(inputs).forEach(function (key) {
+        inputs[key].addEventListener("input", onInput);
+        inputs[key].addEventListener("change", onInput);
+        inputs[key].addEventListener("keydown", function (e) {
+          if (e.key === "Enter") runCalc();
+        });
+      });
+
+      // initial draw + calc
+      runCalc();
+    })();
+  </script>
+</body>
+</html>
